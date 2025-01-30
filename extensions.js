@@ -2400,7 +2400,6 @@ export const OpenAIAssistantsV2Extension = {
     const waitingContainer = document.createElement("div");
     waitingContainer.innerHTML = `
   <style>
-    /* Remove background for the thinking phase */
     .vfrc-message--extension-OpenAIAssistantsV2.thinking-phase {
       background: none !important;
     }
@@ -2421,9 +2420,7 @@ export const OpenAIAssistantsV2Extension = {
         rgb(153, 153, 153) 30%,
         rgb(153, 153, 153) 50%,
         rgb(232, 232, 232) 70%
-      )
-      0% 0% /
-        300% text;
+      ) 0% 0% / 300% text;
       animation: shimmer 6s linear infinite;
       text-align: left;
       margin-left: -10px;
@@ -2431,12 +2428,8 @@ export const OpenAIAssistantsV2Extension = {
     }
 
     @keyframes shimmer {
-      0% {
-        background-position: 300% 0;
-      }
-      100% {
-        background-position: -300% 0;
-      }
+      0% { background-position: 300% 0; }
+      100% { background-position: -300% 0; }
     }
   </style>
   <div class="waiting-animation-container">
@@ -2446,13 +2439,11 @@ export const OpenAIAssistantsV2Extension = {
 
     element.appendChild(waitingContainer);
 
-    // Remove the waiting container function
     const removeWaitingContainer = () => {
       if (element.contains(waitingContainer)) {
         element.removeChild(waitingContainer);
       }
 
-      // Restore the background when the message starts streaming
       if (messageElement) {
         messageElement.classList.remove("thinking-phase");
       }
@@ -2462,7 +2453,6 @@ export const OpenAIAssistantsV2Extension = {
     responseContainer.classList.add("response-container");
     element.appendChild(responseContainer);
 
-    // Function to handle retries
     const fetchWithRetries = async (url, options, retries = 3, delay = 1000) => {
       for (let attempt = 0; attempt < retries; attempt++) {
         try {
@@ -2483,9 +2473,7 @@ export const OpenAIAssistantsV2Extension = {
 
     try {
       let sseResponse;
-
       if (!threadId || !threadId.match(/^thread_/)) {
-        // No threadId provided, or it doesn't match 'thread_...', so create a new one
         sseResponse = await fetchWithRetries("https://api.openai.com/v1/threads/runs", {
           method: "POST",
           headers: {
@@ -2502,7 +2490,6 @@ export const OpenAIAssistantsV2Extension = {
           }),
         });
       } else {
-        // Existing threadId, so just continue that conversation
         await fetchWithRetries(`https://api.openai.com/v1/threads/${threadId}/messages`, {
           method: "POST",
           headers: {
@@ -2533,8 +2520,6 @@ export const OpenAIAssistantsV2Extension = {
       let done = false;
       let partialAccumulator = "";
       let firstTextArrived = false;
-
-      // <-- ADDED CODE: We'll store the newly created thread ID here if we see it in the SSE.
       let extractedThreadId = threadId || null;
 
       while (!done) {
@@ -2565,7 +2550,6 @@ export const OpenAIAssistantsV2Extension = {
               continue;
             }
 
-            // <-- ADDED CODE: If the object is 'thread.run', capture its thread_id
             if (json.object === "thread.run" && json.thread_id) {
               extractedThreadId = json.thread_id;
             }
@@ -2584,6 +2568,13 @@ export const OpenAIAssistantsV2Extension = {
                     const cleanedText = removeCitations(partialAccumulator);
                     const formattedText = marked.parse(cleanedText);
                     responseContainer.innerHTML = formattedText;
+
+                    // **NEW: Make all AI-generated links open in a new tab**
+                    responseContainer.querySelectorAll("a").forEach((link) => {
+                      link.setAttribute("target", "_blank");
+                      link.setAttribute("rel", "noopener noreferrer");
+                    });
+
                   } catch (e) {
                     console.error("Error parsing markdown:", e);
                   }
@@ -2599,12 +2590,11 @@ export const OpenAIAssistantsV2Extension = {
         responseContainer.textContent = "(No response)";
       }
 
-      // <-- ADDED CODE: Now we pass the threadId back, along with the text response.
       window.voiceflow?.chat?.interact?.({
         type: "complete",
         payload: {
           response: partialAccumulator,
-          threadId: extractedThreadId, // new or existing threadId
+          threadId: extractedThreadId,
         },
       });
     } catch (error) {
@@ -2613,4 +2603,3 @@ export const OpenAIAssistantsV2Extension = {
     }
   },
 };
-
