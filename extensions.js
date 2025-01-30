@@ -2367,8 +2367,6 @@ export const FeedbackSpintsoExtension = {
 
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
 
-import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
-
 export const OpenAIAssistantsV2Extension = {
   name: "OpenAIAssistantsV2",
   type: "response",
