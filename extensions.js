@@ -775,25 +775,31 @@ export const DisableInputExtension = {
       const chatDiv = document.getElementById("voiceflow-chat");
       const shadowRoot = chatDiv?.shadowRoot;
 
-      if (!shadowRoot) {
-        return;
+      if (!shadowRoot) return;
+
+      const sendButton = shadowRoot.querySelector("#vfrc-send-message");
+      if (sendButton) {
+        sendButton.disabled = isDisabled;
+        sendButton.style.pointerEvents = isDisabled ? "none" : "auto";
+        sendButton.style.cursor = isDisabled ? "not-allowed" : "pointer";
       }
 
-      // Disable text areas
       const textAreas = shadowRoot.querySelectorAll(
         ".vfrc-chat-input, ._1kk1h6j6"
       );
-      textAreas.forEach((element) => {
-        element.disabled = isDisabled;
-        element.style.pointerEvents = isDisabled ? "none" : "auto";
-      });
 
-      // Disable buttons
-      const buttons = shadowRoot.querySelectorAll(
-        ".vfrc-button, .ugfae45, #vfrc-send-message"
-      );
-      buttons.forEach((button) => {
-        button.disabled = isDisabled;
+      textAreas.forEach((element) => {
+        element.disabled = false;
+        element.style.pointerEvents = "auto";
+
+        element.onkeydown = (event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            if (isDisabled) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }
+        };
       });
     };
 
