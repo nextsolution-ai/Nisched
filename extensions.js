@@ -2569,10 +2569,13 @@ export const OpenAIAssistantsV2Extension = {
                     const formattedText = marked.parse(cleanedText);
                     responseContainer.innerHTML = formattedText;
 
-                    // **NEW: Make all AI-generated links open in a new tab**
                     responseContainer.querySelectorAll("a").forEach((link) => {
                       link.setAttribute("target", "_blank");
                       link.setAttribute("rel", "noopener noreferrer");
+
+                      if (link.href.startsWith("mailto:")) {
+                        link.replaceWith(document.createTextNode(link.textContent));
+                      }
                     });
 
                   } catch (e) {
