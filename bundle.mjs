@@ -51314,7 +51314,7 @@ You might need to use a local HTTP server (instead of file://): https://reactjs.
       (e = arguments[n++]) && (t = R5(e)) && (a && (a += " "), (a += t));
     return a;
   }
-  const _C = "https://nextsolution-ai.github.io/nisched";
+  const _C = "https://nextsolution-ai.github.io/Nisched";
   var CC = ((e) => (
       (e.START_CHAT = "vfrc-start-chat"),
       (e.SEND_MESSAGE = "vfrc-send-message"),
