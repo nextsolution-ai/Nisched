@@ -4,7 +4,7 @@ export const FormExtension = {
   name: "FormExtension",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_form" || trace.payload.name === "ext_form",
+    trace.type === "ext_form" || trace.payload?.name === "ext_form",
   render: ({ trace, element }) => {
     const disableFooterInputs = (isDisabled) => {
       const chatDiv = document.getElementById("voiceflow-chat");
@@ -105,7 +105,7 @@ export const MapExtension = {
   name: "Maps",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_map" || trace.payload.name === "ext_map",
+    trace.type === "ext_map" || trace.payload?.name === "ext_map",
   render: ({ trace, element }) => {
     const GoogleMap = document.createElement("iframe");
     const { apiKey, origin, destination, zoom, height, width } = trace.payload;
@@ -125,7 +125,7 @@ export const VideoExtension = {
   name: "Video",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_video" || trace.payload.name === "ext_video",
+    trace.type === "ext_video" || trace.payload?.name === "ext_video",
   render: ({ trace, element }) => {
     const videoElement = document.createElement("video");
     const { videoURL, autoplay, controls } = trace.payload;
@@ -151,7 +151,7 @@ export const TimerExtension = {
   name: "Timer",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_timer" || trace.payload.name === "ext_timer",
+    trace.type === "ext_timer" || trace.payload?.name === "ext_timer",
   render: ({ trace, element }) => {
     const { duration } = trace.payload || 5;
     let timeLeft = duration;
@@ -177,7 +177,7 @@ export const FileUploadExtension = {
   name: "FileUpload",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_fileUpload" || trace.payload.name === "ext_fileUpload",
+    trace.type === "ext_fileUpload" || trace.payload?.name === "ext_fileUpload",
   render: ({ trace, element }) => {
     const fileUploadContainer = document.createElement("div");
     fileUploadContainer.innerHTML = `
@@ -255,7 +255,7 @@ export const KBUploadExtension = {
   name: "KBUpload",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_KBUpload" || trace.payload.name === "ext_KBUpload",
+    trace.type === "ext_KBUpload" || trace.payload?.name === "ext_KBUpload",
   render: ({ trace, element }) => {
     const apiKey = trace.payload.apiKey || null;
     const maxChunkSize = trace.payload.maxChunkSize || 1000;
@@ -341,7 +341,7 @@ export const DateExtension = {
   name: "Date",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_date" || trace.payload.name === "ext_date",
+    trace.type === "ext_date" || trace.payload?.name === "ext_date",
   render: ({ trace, element }) => {
     const formContainer = document.createElement("form");
 
@@ -443,7 +443,7 @@ export const ConfettiExtension = {
   name: "Confetti",
   type: "effect",
   match: ({ trace }) =>
-    trace.type === "ext_confetti" || trace.payload.name === "ext_confetti",
+    trace.type === "ext_confetti" || trace.payload?.name === "ext_confetti",
   effect: ({ trace }) => {
     const canvas = document.querySelector("#confetti-canvas");
 
@@ -564,7 +564,7 @@ export const CalendlyExtension = {
   type: "effect",
   match: ({ trace }) => {
     return (
-      trace.type === "ext_calendly" || trace.payload.name === "ext_calendly"
+      trace.type === "ext_calendly" || trace.payload?.name === "ext_calendly"
     );
   },
   effect: ({ trace }) => {
@@ -580,7 +580,7 @@ export const MultiSelectExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_multiselect" ||
-    trace.payload.name === "ext_multiselect",
+    trace.payload?.name === "ext_multiselect",
   render: ({ trace, element }) => {
     const { options, maxSelections } = trace.payload;
     const multiSelectContainer = document.createElement("form");
@@ -814,12 +814,6 @@ export const BrowserDataExtension = {
     trace.type === "ext_browserData" ||
     trace.payload?.name === "ext_browserData",
   effect: async ({ trace }) => {
-    const apiKey = trace.payload?.apiKey;
-    if (!apiKey) {
-      console.error("API key is missing from the payload.");
-      return;
-    }
-
     const getCookies = () => {
       const cookies = document.cookie.split(";").reduce((acc, cookie) => {
         const [name, value] = cookie.split("=").map((c) => c.trim());
@@ -864,10 +858,14 @@ export const BrowserDataExtension = {
     };
 
     const getIpData = async () => {
+      const apiKey = "262bee3e335f49c5a155067f8377e4d9";
       const url = `https://api.ipgeolocation.io/ipgeo?apiKey=${apiKey}`;
+
       try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
         const data = await response.json();
         return {
           ip: data.ip,
@@ -886,7 +884,7 @@ export const BrowserDataExtension = {
     const url = window.location.href;
     const params = new URLSearchParams(window.location.search).toString();
     const cookies = getCookies();
-    const timezone = new Date().toISOString();
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const time = new Date().toLocaleTimeString();
     const ts = Math.floor(Date.now() / 1000);
     const userAgent = navigator.userAgent;
@@ -927,7 +925,7 @@ export const CustomImageExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_custom_image" ||
-    trace.payload.name === "ext_custom_image",
+    trace.payload?.name === "ext_custom_image",
   render: ({ trace, element }) => {
     const { imgURL } = trace.payload;
 
@@ -972,7 +970,7 @@ export const RankOptionsExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_rankoptions" ||
-    trace.payload.name === "ext_rankoptions",
+    trace.payload?.name === "ext_rankoptions",
   render: ({ trace, element }) => {
     const { options } = trace.payload;
 
@@ -1098,7 +1096,7 @@ export const DropdownExtension = {
   name: "DropdownExtension",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_dropdown" || trace.payload.name === "ext_dropdown",
+    trace.type === "ext_dropdown" || trace.payload?.name === "ext_dropdown",
   render: ({ trace, element }) => {
     const disableFooterInputs = (isDisabled) => {
       const chatDiv = document.getElementById("voiceflow-chat");
@@ -1269,7 +1267,7 @@ export const CarouselExtension = {
   name: "Carousel",
   type: "response",
   match: ({ trace }) =>
-    trace.type === "ext_carousel" || trace.payload.name === "ext_carousel",
+    trace.type === "ext_carousel" || trace.payload?.name === "ext_carousel",
   render: ({ trace, element }) => {
     console.log("trace:", trace);
     console.log("element:", element);
@@ -1454,9 +1452,9 @@ export const CustomScreenExtension = {
       const shadowRoot = chatDiv.shadowRoot;
       if (shadowRoot) {
         const inputContainer = shadowRoot.querySelector(
-          "._1be70ce0"
+          ".vfrc-chat-input.c-cNrVYs"
         );
-        const dialogContainer = shadowRoot.querySelector(".vfrc-footer._1hoini32");
+        const dialogContainer = shadowRoot.querySelector(".vfrc-chat--dialog");
 
         if (inputContainer && dialogContainer) {
           const overlay = document.createElement("div");
@@ -1465,12 +1463,12 @@ export const CustomScreenExtension = {
           overlay.style.left = "0";
           overlay.style.width = "100%";
           overlay.style.height = "100%";
-          overlay.style.backgroundColor = "rgba(0, 0, 0, 0)";
-          overlay.style.zIndex = "1000";
+          overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+          overlay.style.zIndex = "2";
 
           const customContainer = document.createElement("div");
           customContainer.style.position = "absolute";
-          customContainer.style.zIndex = "1000";
+          customContainer.style.zIndex = "3";
           customContainer.style.width = "100%";
           customContainer.style.bottom = "0";
 
@@ -1492,7 +1490,7 @@ export const CustomScreenExtension = {
                 background: rgb(255, 255, 255);
                 padding: 20px 15px;
                 text-align: left;
-                font-family: "Open Sans";
+                font-family: -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", "Segoe UI Emoji", "Segoe UI Symbol", Roboto, Helvetica, Arial, sans-serif;
                 z-index: 4; 
                 position: absolute;
                 bottom: 0;
@@ -1533,7 +1531,7 @@ export const CustomScreenExtension = {
                 padding: 10px 0;
                 margin: 4px 2px;
                 transition: background-color 0.3s ease;
-                font-family: 'Open Sans';
+                font-family: 'Space Grotesk';
               }
               .custom-button:hover {
                 background-color: rgba(0, 0, 0, 0.1);
@@ -1626,7 +1624,7 @@ export const SkipButtonExtension = {
   type: "effect",
   match: ({ trace }) => {
     return (
-      trace.type === "ext_skipButton" || trace.payload.name === "ext_skipButton"
+      trace.type === "ext_skipButton" || trace.payload?.name === "ext_skipButton"
     );
   },
   effect: ({ trace }) => {
@@ -1700,7 +1698,7 @@ export const SettingsScreenExtension = {
   type: "effect",
   match: ({ trace }) =>
     trace.type === "ext_settingsScreen" ||
-    trace.payload.name === "ext_settingsScreen",
+    trace.payload?.name === "ext_settingsScreen",
   effect: ({ trace }) => {
     const chatDiv = document.getElementById("voiceflow-chat");
     if (chatDiv) {
@@ -1937,7 +1935,7 @@ export const StripeBuyButtonExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_stripeBuyButton" ||
-    trace.payload.name === "ext_stripeBuyButton",
+    trace.payload?.name === "ext_stripeBuyButton",
   render: ({ trace, element }) => {
     const { publishableKey, buyButtonId, sessionId } = trace.payload;
 
@@ -2021,16 +2019,15 @@ export const PlaceholderExtension = {
     trace.payload?.name === "ext_placeholder",
   effect: ({ trace }) => {
     const chatDiv = document.getElementById("voiceflow-chat");
-    if (!chatDiv) return;
-    
     const shadowRoot = chatDiv.shadowRoot;
-    if (!shadowRoot) return;
-    
     const textarea = shadowRoot.querySelector("textarea");
-    if (!textarea) return;
+    const button = shadowRoot.querySelector(
+      ".vfrc-chat-input--button.c-iSWgdS"
+    );
 
     const fadeDuration = trace.payload.fadeDuration ?? 0;
     const blankDuration = trace.payload.blankDuration ?? 0;
+
     const newPlaceholder = trace.payload.placeholder || "Ask a question...";
 
     const applyPlaceholderAnimation = (element, newPlaceholder) => {
@@ -2049,7 +2046,17 @@ export const PlaceholderExtension = {
       }, fadeDuration + blankDuration);
     };
 
+    const applyButtonAnimation = (element) => {
+      element.style.transition = `opacity ${fadeDuration}ms ease`;
+      element.style.opacity = "0";
+
+      setTimeout(() => {
+        element.style.opacity = "1";
+      }, fadeDuration + blankDuration);
+    };
+
     applyPlaceholderAnimation(textarea, newPlaceholder);
+    applyButtonAnimation(button);
   },
 };
 
@@ -2057,7 +2064,7 @@ export const DelayEffectExtension = {
   name: "DelayEffect",
   type: "effect",
   match: ({ trace }) =>
-    trace.type === "ext_delay" || trace.payload.name === "ext_delay",
+    trace.type === "ext_delay" || trace.payload?.name === "ext_delay",
   effect: async ({ trace }) => {
     const { delay } = trace.payload;
 
@@ -2072,7 +2079,7 @@ export const ActivateAvatarExtension = {
   type: "effect",
   match: ({ trace }) =>
     trace.type === "ext_activateAvatar" ||
-    trace.payload.name === "ext_activateAvatar",
+    trace.payload?.name === "ext_activateAvatar",
   effect: ({ trace }) => {
     const { isActive } = trace.payload;
 
@@ -2121,7 +2128,7 @@ export const LanguageDetectionExtension = {
   name: "BrowserData",
   type: "effect",
   match: ({ trace }) =>
-    trace.type === "ext_language" || trace.payload.name === "ext_language",
+    trace.type === "ext_language" || trace.payload?.name === "ext_language",
   effect: async ({ trace }) => {
     const lang = navigator.language || navigator.userLanguage;
 
@@ -2141,7 +2148,7 @@ export const WaitingAnimationExtension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_waitingAnimation" ||
-    trace.payload.name === "ext_waitingAnimation",
+    trace.payload?.name === "ext_waitingAnimation",
   render: async ({ trace, element }) => {
     window.vf_done = true;
     await new Promise((resolve) => setTimeout(resolve, 250));
@@ -2371,7 +2378,7 @@ export const OpenAIAssistantsV2Extension = {
   type: "response",
   match: ({ trace }) =>
     trace.type === "ext_openai_assistants_v2" ||
-    (trace.payload && trace.payload.name === "ext_openai_assistants_v2"),
+    (trace.payload && trace.payload?.name === "ext_openai_assistants_v2"),
 
   render: async ({ trace, element }) => {
     const { payload } = trace || {};
@@ -2392,59 +2399,51 @@ export const OpenAIAssistantsV2Extension = {
 
     const waitingContainer = document.createElement("div");
     waitingContainer.innerHTML = `
-    <style>
-      /* Remove background for the thinking phase */
-      .vfrc-message--extension-OpenAIAssistantsV2.thinking-phase {
-        background: none !important;
-      }
+  <style>
+    .vfrc-message--extension-OpenAIAssistantsV2.thinking-phase {
+      background: none !important;
+    }
 
-      .waiting-animation-container {
-        font-family: Open Sans;
-        font-size: 14px;
-        font-weight: normal;
-        line-height: 1.25;
-        color: rgb(0, 0, 0);
-        -webkit-text-fill-color: transparent;
-        animation-timeline: auto;
-        animation-range-start: normal;
-        animation-range-end: normal;
-        background: linear-gradient(
-          to right,
-          rgb(232, 232, 232) 10%,
-          rgb(153, 153, 153) 30%,
-          rgb(153, 153, 153) 50%,
-          rgb(232, 232, 232) 70%
-        )
-        0% 0% / 300% text;
-        animation: shimmer 6s linear infinite;
-        text-align: left;
-        margin-left: -10px;
-        margin-top: 10px;
-      }
+    .waiting-animation-container {
+      font-family: Open Sans;
+      font-size: 14px;
+      font-weight: normal;
+      line-height: 1.25;
+      color: rgb(0, 0, 0);
+      -webkit-text-fill-color: transparent;
+      animation-timeline: auto;
+      animation-range-start: normal;
+      animation-range-end: normal;
+      background: linear-gradient(
+        to right,
+        rgb(232, 232, 232) 10%,
+        rgb(153, 153, 153) 30%,
+        rgb(153, 153, 153) 50%,
+        rgb(232, 232, 232) 70%
+      ) 0% 0% / 300% text;
+      animation: shimmer 6s linear infinite;
+      text-align: left;
+      margin-left: -10px;
+      margin-top: 10px;
+    }
 
-      @keyframes shimmer {
-        0% {
-          background-position: 300% 0;
-        }
-        100% {
-          background-position: -300% 0;
-        }
-      }
-    </style>
-    <div class="waiting-animation-container">
-      ${text || "Thinking..."}
-    </div>
-  `;
+    @keyframes shimmer {
+      0% { background-position: 300% 0; }
+      100% { background-position: -300% 0; }
+    }
+  </style>
+  <div class="waiting-animation-container">
+    ${text || "Thinking..."}
+  </div>
+`;
 
     element.appendChild(waitingContainer);
 
-    // Remove the waiting container function
     const removeWaitingContainer = () => {
       if (element.contains(waitingContainer)) {
         element.removeChild(waitingContainer);
       }
 
-      // Restore the background when the message starts streaming
       if (messageElement) {
         messageElement.classList.remove("thinking-phase");
       }
@@ -2454,13 +2453,7 @@ export const OpenAIAssistantsV2Extension = {
     responseContainer.classList.add("response-container");
     element.appendChild(responseContainer);
 
-    // Function to handle retries
-    const fetchWithRetries = async (
-      url,
-      options,
-      retries = 3,
-      delay = 1000
-    ) => {
+    const fetchWithRetries = async (url, options, retries = 3, delay = 1000) => {
       for (let attempt = 0; attempt < retries; attempt++) {
         try {
           const response = await fetch(url, options);
@@ -2480,42 +2473,33 @@ export const OpenAIAssistantsV2Extension = {
 
     try {
       let sseResponse;
-
       if (!threadId || !threadId.match(/^thread_/)) {
-        // No threadId provided, or it doesn't match 'thread_...', so create a new one
-        sseResponse = await fetchWithRetries(
-          "https://api.openai.com/v1/threads/runs",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-              "OpenAI-Beta": "assistants=v2",
+        sseResponse = await fetchWithRetries("https://api.openai.com/v1/threads/runs", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "OpenAI-Beta": "assistants=v2",
+          },
+          body: JSON.stringify({
+            assistant_id: assistantId,
+            stream: true,
+            tool_choice: { type: "file_search" }, 
+            thread: {
+              messages: [{ role: "user", content: userMessage }],
             },
-            body: JSON.stringify({
-              assistant_id: assistantId,
-              stream: true,
-              tool_choice: { type: "file_search" }, 
-              thread: {
-                messages: [{ role: "user", content: userMessage }],
-              },
-            }),
-          }
-        );
+          }),
+        });
       } else {
-        // Existing threadId, so just continue that conversation
-        await fetchWithRetries(
-          `https://api.openai.com/v1/threads/${threadId}/messages`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-              "OpenAI-Beta": "assistants=v2",
-            },
-            body: JSON.stringify({ role: "user", content: userMessage }),
-          }
-        );
+        await fetchWithRetries(`https://api.openai.com/v1/threads/${threadId}/messages`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+            "OpenAI-Beta": "assistants=v2",
+          },
+          body: JSON.stringify({ role: "user", content: userMessage }),
+        });
 
         sseResponse = await fetchWithRetries(
           `https://api.openai.com/v1/threads/${threadId}/runs`,
@@ -2529,7 +2513,7 @@ export const OpenAIAssistantsV2Extension = {
             body: JSON.stringify({
               assistant_id: assistantId,
               stream: true,
-              tool_choice: { type: "file_search" }, // Enforce file_search
+              tool_choice: { type: "file_search" }, 
             }),
           }
         );
@@ -2541,8 +2525,6 @@ export const OpenAIAssistantsV2Extension = {
       let done = false;
       let partialAccumulator = "";
       let firstTextArrived = false;
-
-      // Store the newly created thread ID if we see it in the SSE.
       let extractedThreadId = threadId || null;
 
       while (!done) {
@@ -2591,6 +2573,16 @@ export const OpenAIAssistantsV2Extension = {
                     const cleanedText = removeCitations(partialAccumulator);
                     const formattedText = marked.parse(cleanedText);
                     responseContainer.innerHTML = formattedText;
+
+                    responseContainer.querySelectorAll("a").forEach((link) => {
+                      link.setAttribute("target", "_blank");
+                      link.setAttribute("rel", "noopener noreferrer");
+
+                      if (link.href.startsWith("mailto:")) {
+                        link.replaceWith(document.createTextNode(link.textContent));
+                      }
+                    });
+
                   } catch (e) {
                     console.error("Error parsing markdown:", e);
                   }
@@ -2603,8 +2595,7 @@ export const OpenAIAssistantsV2Extension = {
 
       if (!partialAccumulator) {
         removeWaitingContainer();
-        responseContainer.textContent =
-          "Det kan jag inte besvara, försök att omformulera din fråga.";
+        responseContainer.textContent = "Det kan jag inte besvara, försök att omformulera din fråga.";
       }
 
       window.voiceflow?.chat?.interact?.({
