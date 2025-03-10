@@ -2628,7 +2628,7 @@ export const TextExtension = {
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         color:rgb(0, 0, 0);
         line-height: 1.5;
-        font-size: 0.9rem;
+        font-size: 14.4px;
       ">
         <p style="margin: 0;">
           Ditt meddelande är på väg till hjärnkontoret! Bara en sak till innan du får svaret👇
